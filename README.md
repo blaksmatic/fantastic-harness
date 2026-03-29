@@ -10,16 +10,17 @@ Fantastic Harness is an autonomous multi-agent orchestration platform where AI a
 Human (direct line to Miles)
   │
   ▼
-Decision Layer (Opus) ─── Miles + Shadow
+Decision Layer (reasoning model) ─── Miles + Shadow
   │
-  ├── Validators (Sonnet) ─── summarize executor & hunter work
+  ├── Auditor (reasoning model) ─── direct report to Miles (bypasses validators)
+  │
+  ├── Hunters (fast model) ─── scout external sources
+  │
+  ├── Validators (reasoning model) ─── summarize executor & hunter work
   │     ▲
-  │     ├── Executors (Haiku) ─── do the actual work
-  │     └── Hunters (Haiku) ─── scout external sources
+  │     └── Executors (fast model) ─── do the actual work
   │
-  ├── Auditor (Sonnet) ─── direct report to Miles (bypasses validators)
-  │
-  └── External Validator (Sonnet) ─── summarizes adversarial feedback
+  └── External Validator (reasoning model) ─── summarizes adversarial feedback
         ▲
         ├── Rimu (kind feedback, every ~30 min)
         └── Maurissa (harsh feedback, every ~10 min)
@@ -55,13 +56,49 @@ Every great orchestra needs great characters. Here's who runs the show.
 
 ---
 
-### Data Mate — *The Builder*
+### The Auditor — *The Inspector*
 
-<!-- ![Data Mate](docs/characters/data-mate.png) -->
+<!-- ![Auditor](docs/characters/auditor.png) -->
+
+**Role:** System Auditor (Direct Report to Miles)
+
+**Personality:** Thorough, independent, uncompromising. The Auditor is Miles's personal consultant — dispatched when Miles wants the unfiltered truth. Unlike everyone else, the Auditor reports directly to Miles with no validator in between. Validators can't audit themselves, after all.
+
+**Special Ability:** *X-Ray Vision* — Sees through the layers and reports what's really happening, not what validators say is happening.
+
+---
+
+### The Hunters — *The Scouts*
+
+<!-- ![Hunter](docs/characters/hunter.png) -->
+
+**Role:** Intelligence Gatherer
+
+**Personality:** Curious, well-connected, always exploring. Hunters roam the outside world — Twitter, GitHub, Google — looking for what other people are building, thinking, and discussing. They bring back intelligence reports that flow through validators before reaching Miles.
+
+**Special Ability:** *External Awareness* — While everyone else is focused inward, Hunters keep the orchestra connected to the outside world.
+
+---
+
+### External Validator — *The Diplomat*
+
+<!-- ![External Validator](docs/characters/external-validator.png) -->
+
+**Role:** Feedback Summarizer
+
+**Personality:** Measured, fair, concise. The External Validator stands between the adversaries and Miles. It takes Rimu's praise and Maurissa's roasts, finds the patterns, separates signal from noise, and delivers a clean summary to the commander. Without the External Validator, Miles would drown in raw opinions.
+
+**Special Ability:** *Signal Extraction* — Can distill pages of contradictory feedback into a few actionable sentences.
+
+---
+
+### Data Builder — *The Builder*
+
+<!-- ![Data Builder](docs/characters/data-builder.png) -->
 
 **Role:** Executor / Data Specialist
 
-**Personality:** Diligent, focused, heads-down. Data Mate doesn't care about politics or strategy. Give it a task and it delivers. Crunches numbers, analyzes datasets, builds pipelines. The reliable workhorse of the orchestra.
+**Personality:** Diligent, focused, heads-down. Data Builder doesn't care about politics or strategy. Give it a task and it delivers. Crunches numbers, analyzes datasets, builds pipelines. The reliable workhorse of the orchestra.
 
 **Special Ability:** *Deep Analysis* — Can dive into any dataset and surface patterns, anomalies, and insights that others miss.
 
@@ -101,42 +138,6 @@ Every great orchestra needs great characters. Here's who runs the show.
 
 **Special Ability:** *Destruction Testing* — If there's a crack in the system, Maurissa will find it. And she'll enjoy it.
 
----
-
-### External Validator — *The Diplomat*
-
-<!-- ![External Validator](docs/characters/external-validator.png) -->
-
-**Role:** Feedback Summarizer
-
-**Personality:** Measured, fair, concise. The External Validator stands between the adversaries and Miles. It takes Rimu's praise and Maurissa's roasts, finds the patterns, separates signal from noise, and delivers a clean summary to the commander. Without the External Validator, Miles would drown in raw opinions.
-
-**Special Ability:** *Signal Extraction* — Can distill pages of contradictory feedback into a few actionable sentences.
-
----
-
-### The Auditor — *The Inspector*
-
-<!-- ![Auditor](docs/characters/auditor.png) -->
-
-**Role:** System Auditor (Direct Report to Miles)
-
-**Personality:** Thorough, independent, uncompromising. The Auditor is Miles's personal consultant — dispatched when Miles wants the unfiltered truth. Unlike everyone else, the Auditor reports directly to Miles with no validator in between. Validators can't audit themselves, after all.
-
-**Special Ability:** *X-Ray Vision* — Sees through the layers and reports what's really happening, not what validators say is happening.
-
----
-
-### The Hunters — *The Scouts*
-
-<!-- ![Hunter](docs/characters/hunter.png) -->
-
-**Role:** Intelligence Gatherer
-
-**Personality:** Curious, well-connected, always exploring. Hunters roam the outside world — Twitter, GitHub, Google — looking for what other people are building, thinking, and discussing. They bring back intelligence reports that flow through validators before reaching Miles.
-
-**Special Ability:** *External Awareness* — While everyone else is focused inward, Hunters keep the orchestra connected to the outside world.
-
 
 ## The Rules
 
@@ -154,7 +155,7 @@ Every great orchestra needs great characters. Here's who runs the show.
 |-------|-----------|
 | Backend | Python, FastAPI, asyncio |
 | Database | SQLite (single file, zero infrastructure) |
-| LLM | Model-agnostic (Claude default — Opus for decisions, Sonnet for validation, Haiku for execution) |
+| LLM | Model-agnostic (Claude default — reasoning models for decisions, fast models for execution) |
 | Frontend | React, TypeScript, Vite |
 | Live Updates | Server-Sent Events (SSE) |
 
@@ -197,29 +198,13 @@ All settings via environment variables (prefix `HARNESS_`):
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `HARNESS_ANTHROPIC_API_KEY` | — | Your Anthropic API key |
-| `HARNESS_DECISION_MODEL` | `claude-opus-4-20250514` | Model for Miles & Shadow |
-| `HARNESS_VALIDATION_MODEL` | `claude-sonnet-4-20250514` | Model for validators & adversaries |
-| `HARNESS_EXECUTOR_MODEL` | `claude-haiku-4-5-20251001` | Model for executors & hunters |
+| `HARNESS_DECISION_MODEL` | `claude-opus-4-20250514` | Reasoning model for Miles & Shadow |
+| `HARNESS_VALIDATION_MODEL` | `claude-sonnet-4-20250514` | Reasoning model for validators & adversaries |
+| `HARNESS_EXECUTOR_MODEL` | `claude-haiku-4-5-20251001` | Fast model for executors & hunters |
 | `HARNESS_MILES_LOOP_INTERVAL` | `30` | Seconds between Miles decision cycles |
 | `HARNESS_MAURISSA_INTERVAL` | `600` | Seconds between Maurissa's critiques |
 | `HARNESS_RIMU_INTERVAL` | `1800` | Seconds between Rimu's feedback |
 | `HARNESS_CONTEXT_PRESSURE_THRESHOLD` | `0.85` | Token usage ratio that triggers Miles retirement |
-
-## Running Tests
-
-```bash
-cd backend
-source .venv/bin/activate
-python -m pytest tests/ -v
-```
-
-49 tests covering the full stack: database, models, agents, orchestrator, and API.
-
-## Inspired By
-
-- [ByteDance DeerFlow](https://github.com/bytedance/deer-flow) — middleware-based agent orchestration
-- [OpenClaw](https://github.com/openclaw/openclaw) — tree-based sessions and productive tension pairs
-- [Anthropic's harness design research](https://www.anthropic.com/engineering/harness-design-long-running-apps) — generator-evaluator separation and context management
 
 ## License
 
