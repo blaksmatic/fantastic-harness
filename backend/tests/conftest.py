@@ -1,6 +1,5 @@
 import asyncio
 import os
-import tempfile
 from collections.abc import AsyncGenerator
 
 import pytest
