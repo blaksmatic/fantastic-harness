@@ -1,0 +1,6 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0a; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
+.harness { display: flex; flex-direction: column; height: 100vh; }
+.harness-header { padding: 12px 20px; border-bottom: 1px solid #1e1e2e; background: #111; }
+.harness-header h1 { font-size: 16px; font-weight: 600; color: #6366f1; }
+.harness-body { display: flex; flex: 1; overflow: hidden; }
