@@ -162,25 +162,23 @@ Every great orchestra needs great characters. Here's who runs the show.
 ## Quick Start
 
 ```bash
-# Clone
 git clone https://github.com/blaksmatic/fantastic-harness.git
 cd fantastic-harness
-
-# Backend
-cd backend
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
 export HARNESS_ANTHROPIC_API_KEY=your-key-here
-uvicorn app.main:app --reload
-
-# Frontend (new terminal)
-cd frontend
-npm install
-npm run dev
+./harness start
 ```
 
-Open `http://localhost:5173` and watch the orchestra perform.
+That's it. The backend starts on `http://localhost:8000`, the frontend on `http://localhost:5173`. Open the frontend and watch the orchestra perform.
+
+Other commands:
+
+```bash
+./harness setup       # Install all dependencies
+./harness backend     # Start backend only
+./harness frontend    # Start frontend only
+./harness test        # Run tests
+./harness stop        # Stop all processes
+```
 
 ## The Frontend
 

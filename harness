@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BACKEND_DIR="$SCRIPT_DIR/backend"
+FRONTEND_DIR="$SCRIPT_DIR/frontend"
+VENV_DIR="$BACKEND_DIR/.venv"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+RESET='\033[0m'
+
+usage() {
+    echo -e "${BOLD}Fantastic Harness${RESET} — the self-governing AI builder"
+    echo ""
+    echo "Usage: harness <command>"
+    echo ""
+    echo "Commands:"
+    echo "  start       Start the backend and frontend"
+    echo "  backend     Start the backend only"
+    echo "  frontend    Start the frontend only"
+    echo "  setup       Install all dependencies"
+    echo "  test        Run backend tests"
+    echo "  stop        Stop all running harness processes"
+    echo ""
+}
+
+check_python() {
+    if [ -f "$VENV_DIR/bin/python" ]; then
+        echo "$VENV_DIR/bin/python"
+    elif command -v python3.12 &>/dev/null; then
+        echo "python3.12"
+    elif command -v python3 &>/dev/null; then
+        echo "python3"
+    else
+        echo -e "${RED}Python 3 not found. Install Python 3.12+.${RESET}" >&2
+        exit 1
+    fi
+}
+
+ensure_venv() {
+    if [ ! -f "$VENV_DIR/bin/python" ]; then
+        echo -e "${CYAN}Creating virtual environment...${RESET}"
+        PYTHON=$(check_python)
+        "$PYTHON" -m venv "$VENV_DIR"
+        "$VENV_DIR/bin/pip" install -q -r "$BACKEND_DIR/requirements.txt"
+        echo -e "${GREEN}Virtual environment ready.${RESET}"
+    fi
+}
+
+ensure_node_modules() {
+    if [ ! -d "$FRONTEND_DIR/node_modules" ]; then
+        echo -e "${CYAN}Installing frontend dependencies...${RESET}"
+        (cd "$FRONTEND_DIR" && npm install --silent)
+        echo -e "${GREEN}Frontend dependencies ready.${RESET}"
+    fi
+}
+
+cmd_setup() {
+    echo -e "${BOLD}Setting up Fantastic Harness...${RESET}"
+    ensure_venv
+    ensure_node_modules
+    echo -e "${GREEN}Setup complete.${RESET}"
+}
+
+cmd_backend() {
+    ensure_venv
+    if [ -z "$HARNESS_ANTHROPIC_API_KEY" ]; then
+        echo -e "${RED}Warning: HARNESS_ANTHROPIC_API_KEY not set. Orchestrator will not start.${RESET}"
+        echo -e "Set it with: export HARNESS_ANTHROPIC_API_KEY=your-key-here"
+        echo ""
+    fi
+    echo -e "${CYAN}Starting backend on http://localhost:8000${RESET}"
+    cd "$BACKEND_DIR"
+    exec "$VENV_DIR/bin/uvicorn" app.main:app --host 0.0.0.0 --port 8000 --reload
+}
+
+cmd_frontend() {
+    ensure_node_modules
+    echo -e "${CYAN}Starting frontend on http://localhost:5173${RESET}"
+    cd "$FRONTEND_DIR"
+    exec npx vite --host
+}
+
+cmd_start() {
+    ensure_venv
+    ensure_node_modules
+
+    if [ -z "$HARNESS_ANTHROPIC_API_KEY" ]; then
+        echo -e "${RED}Warning: HARNESS_ANTHROPIC_API_KEY not set. Orchestrator will not start.${RESET}"
+        echo -e "Set it with: export HARNESS_ANTHROPIC_API_KEY=your-key-here"
+        echo ""
+    fi
+
+    echo -e "${BOLD}Starting Fantastic Harness...${RESET}"
+    echo ""
+
+    # Start backend in background
+    echo -e "${CYAN}Starting backend on http://localhost:8000${RESET}"
+    cd "$BACKEND_DIR"
+    "$VENV_DIR/bin/uvicorn" app.main:app --host 0.0.0.0 --port 8000 --reload &
+    BACKEND_PID=$!
+
+    # Start frontend in background
+    echo -e "${CYAN}Starting frontend on http://localhost:5173${RESET}"
+    cd "$FRONTEND_DIR"
+    npx vite --host &
+    FRONTEND_PID=$!
+
+    echo ""
+    echo -e "${GREEN}${BOLD}Fantastic Harness is running.${RESET}"
+    echo -e "  Backend:  http://localhost:8000"
+    echo -e "  Frontend: http://localhost:5173"
+    echo ""
+    echo -e "Press Ctrl+C to stop."
+
+    trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit 0" INT TERM
+    wait
+}
+
+cmd_test() {
+    ensure_venv
+    cd "$BACKEND_DIR"
+    exec "$VENV_DIR/bin/python" -m pytest tests/ -v "$@"
+}
+
+cmd_stop() {
+    echo -e "${CYAN}Stopping harness processes...${RESET}"
+    pkill -f "uvicorn app.main:app" 2>/dev/null && echo "Backend stopped." || echo "No backend process found."
+    pkill -f "vite" 2>/dev/null && echo "Frontend stopped." || echo "No frontend process found."
+}
+
+case "${1:-}" in
+    start)    cmd_start ;;
+    backend)  cmd_backend ;;
+    frontend) cmd_frontend ;;
+    setup)    cmd_setup ;;
+    test)     shift; cmd_test "$@" ;;
+    stop)     cmd_stop ;;
+    *)        usage ;;
+esac
