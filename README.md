@@ -4,6 +4,27 @@
 
 Fantastic Harness is an autonomous multi-agent orchestration platform where AI agents run like an orchestra — making decisions, building things, critiquing each other, and scouting the outside world — all without waiting for you. You watch, you guide when you want to, and the orchestra keeps playing.
 
+## Architecture
+
+```
+Human (direct line to Miles)
+  │
+  ▼
+Decision Layer (Opus) ─── Miles + Shadow
+  │
+  ├── Validators (Sonnet) ─── summarize executor & hunter work
+  │     ▲
+  │     ├── Executors (Haiku) ─── do the actual work
+  │     └── Hunters (Haiku) ─── scout external sources
+  │
+  ├── Auditor (Sonnet) ─── direct report to Miles (bypasses validators)
+  │
+  └── External Validator (Sonnet) ─── summarizes adversarial feedback
+        ▲
+        ├── Rimu (kind feedback, every ~30 min)
+        └── Maurissa (harsh feedback, every ~10 min)
+```
+
 ## Meet the Cast
 
 Every great orchestra needs great characters. Here's who runs the show.
@@ -126,27 +147,6 @@ Every great orchestra needs great characters. Here's who runs the show.
 5. Adversaries spawn fresh — no memory between evaluations
 6. The system never waits for humans — but adapts when they speak
 7. Everything is observable — every action hits the timeline
-
-## Architecture
-
-```
-Human (direct line to Miles)
-  │
-  ▼
-Decision Layer (Opus) ─── Miles + Shadow
-  │
-  ├── Validators (Sonnet) ─── summarize executor & hunter work
-  │     ▲
-  │     ├── Executors (Haiku) ─── do the actual work
-  │     └── Hunters (Haiku) ─── scout external sources
-  │
-  ├── Auditor (Sonnet) ─── direct report to Miles (bypasses validators)
-  │
-  └── External Validator (Sonnet) ─── summarizes adversarial feedback
-        ▲
-        ├── Rimu (kind feedback, every ~30 min)
-        └── Maurissa (harsh feedback, every ~10 min)
-```
 
 ## Tech Stack
 
