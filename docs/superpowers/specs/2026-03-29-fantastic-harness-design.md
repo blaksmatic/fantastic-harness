@@ -21,14 +21,14 @@ Goals never auto-complete. Miles stays online indefinitely, waiting for new work
 - **Coordination:** SQLite (single file, no infrastructure dependencies)
 - **LLM:** Model-agnostic with smart defaults (Claude Opus for decision layer, Sonnet for validation/adversary, Haiku for executors)
 
-### Four Layers
+### Five Layers
 
 #### 1. Decision Layer (Opus)
 
 **Miles** (active leader) and **Shadow** (passive observer).
 
 - Miles only makes decisions — never executes work
-- Miles reads only summarized information from validators and Dark Horn
+- Miles reads only summarized information from validators and External Validator
 - Shadow silently reads Miles's journal, building context
 - When Miles retires, Shadow is promoted and spawns a new Shadow
 - There are always exactly two: one active, one shadow
@@ -46,29 +46,55 @@ Validators sit between executors and Miles. One validator per domain.
 
 #### 3. Executor Layer (Haiku)
 
-Workers that do the actual work: Data Mate (data tasks), Router (infrastructure), Hunter (exploration), and user-defined builders.
+Workers that do the actual work: Data Mate (data tasks), Router (infrastructure), and user-defined builders.
 
 - Spawned and killed by Miles's decisions
 - Report raw results upward to their assigned validator
 - Never communicate directly with Miles
 
-#### 4. Adversary Layer (Sonnet, independent)
+#### 4. Hunter Layer (Haiku, scheduled)
+
+Intelligence gatherers that look outward — Twitter, GitHub, Google, and other external sources. They research what other people are doing, thinking, and building.
+
+- Dispatched regularly on a configurable schedule
+- Can also be dispatched on-demand by Miles or validators
+- Each Hunter focuses on a specific source or topic
+- Findings go through the validation layer before reaching Miles (same as executors)
+- Hunters do NOT feed directly to Miles — validators summarize their intelligence
+
+Hunters are distinct from executors: executors build things, Hunters scout the outside world.
+
+#### 5. Auditor (Sonnet, Miles-dispatched)
+
+A special role dispatched directly by Miles to audit the current state of the system. Unlike other roles, the auditor reports directly back to Miles — no validator in between.
+
+- Dispatched by Miles when he wants an independent assessment of the system
+- Inspects the current state: what executors have built, what validators are reporting, what hunters have found
+- Summarizes findings directly to Miles — bypasses the validation layer
+- This bypass is intentional: validators cannot audit themselves
+- Auditor instances are one-shot — spawned, audit, report, destroyed
+
+The auditor is Miles's personal consultant. It's the only non-human role with a direct unsummarized line to Miles.
+
+#### 6. Adversary Layer (Sonnet, independent)
 
 Adversaries evaluate the system on a configurable schedule.
 
 - **Rimu** — kind, positive feedback. Less frequent (~30 min default)
 - **Maurissa** — harsh, critical feedback. More frequent (~10 min default)
 - Each adversary spawns fresh with NO prior context — evaluates from scratch
-- Raw feedback goes to **Dark Horn**, who summarizes and passes to Miles
-- Dark Horn is the adversary-side equivalent of a validator
+- Raw feedback goes to **External Validator**, who summarizes and passes to Miles
+- External Validator is the adversary-side equivalent of a validator
 - Humans can trigger adversaries manually and configure schedules
 
 ### Information Flow Rule
 
-Nothing reaches Miles unsummarized except human input:
+Nothing reaches Miles unsummarized except human input and auditor reports:
 
 - Executor work → Validator → summary → Miles
-- Adversarial feedback → Dark Horn → summary → Miles
+- Hunter intelligence → Validator → summary → Miles
+- Adversarial feedback → External Validator → summary → Miles
+- **Auditor reports → Miles directly** (the only non-human bypass)
 - Human input → Miles directly
 
 This keeps Miles's context clean and extends his lifetime before retirement.
@@ -86,7 +112,7 @@ This keeps Miles's context clean and extends his lifetime before retirement.
 Runs continuously:
 
 1. Read new validator summaries from tasks table
-2. Read new Dark Horn summaries from feedback table
+2. Read new External Validator summaries from feedback table
 3. Read any human input
 4. Make decisions — write to journal
 5. Delegate new work — create tasks for executors
@@ -123,7 +149,7 @@ The Shadow already has context from observing, so the transition has no cold-sta
 - Maurissa fires more frequently (~10 min default) with harsh/critical evaluations
 - Rimu fires less frequently (~30 min default) with kind/constructive feedback
 - Each adversary instance spawns fresh — no memory of previous evaluations
-- Dark Horn collects all raw feedback, summarizes patterns, and passes condensed reports to Miles
+- External Validator collects all raw feedback, summarizes patterns, and passes condensed reports to Miles
 - All timings are configurable by humans via the frontend
 
 ## Data Model (SQLite)
@@ -147,7 +173,7 @@ The Shadow already has context from observing, so the transition has no cold-sta
 | id | TEXT PK | Unique agent identifier |
 | name | TEXT | Display name (e.g., "miles_v3") |
 | role | TEXT | Specific role name |
-| layer | TEXT | decision / validation / executor / adversary |
+| layer | TEXT | decision / validation / executor / hunter / auditor / adversary |
 | model | TEXT | LLM model to use |
 | status | TEXT | active / idle / retired |
 | config | JSON | Schedule, personality, custom settings |
@@ -195,11 +221,45 @@ Adversarial evaluations.
 | author | TEXT | "rimu", "maurissa", or "human" |
 | type | TEXT | positive / negative |
 | raw_content | TEXT | Full adversarial feedback |
-| darkhorn_summary | TEXT | Dark Horn's condensed version |
+| external_validator_summary | TEXT | External Validator's condensed version |
 | miles_response | TEXT | What Miles decided about it |
 | goal_id | TEXT | Related goal (nullable) |
 | status | TEXT | pending / reviewed / rejected |
 | created_at | TIMESTAMP | When submitted |
+
+### audits
+
+Auditor reports — direct to Miles, no validator intermediary.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | TEXT PK | Unique audit identifier |
+| auditor_id | TEXT | Which auditor agent ran this |
+| miles_id | TEXT | Which Miles dispatched it |
+| scope | TEXT | What was audited (e.g., "full_system", "data_pipeline") |
+| findings | TEXT | Auditor's summarized findings |
+| miles_response | TEXT | What Miles decided based on the audit |
+| status | TEXT | running / completed / reviewed |
+| created_at | TIMESTAMP | When dispatched |
+| completed_at | TIMESTAMP | When audit finished |
+
+### scouting
+
+Hunter intelligence missions.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | TEXT PK | Unique mission identifier |
+| hunter_id | TEXT | Which Hunter agent ran this |
+| source | TEXT | "twitter", "github", "google", or custom |
+| topic | TEXT | What they were looking for |
+| raw_findings | TEXT | Full raw intelligence gathered |
+| summary | TEXT | Validator's condensed summary for Miles |
+| validator | TEXT | Validator agent id |
+| goal_id | TEXT | Related goal (nullable) |
+| status | TEXT | pending / running / summarized / reviewed |
+| created_at | TIMESTAMP | When dispatched |
+| completed_at | TIMESTAMP | When findings returned |
 
 ### events
 
@@ -209,7 +269,7 @@ Timeline feed for the frontend.
 |--------|------|-------------|
 | id | INTEGER PK | Auto-incrementing sequence |
 | agent_id | TEXT | Who generated this event |
-| type | TEXT | decision / feedback / task / promotion / retirement / human_input |
+| type | TEXT | decision / feedback / task / scouting / audit / promotion / retirement / human_input |
 | content | TEXT | Display text |
 | metadata | JSON | Extra data for rendering |
 | created_at | TIMESTAMP | When it happened |
@@ -244,7 +304,7 @@ Each agent displayed as a card showing:
 
 Chronological feed of all system activity, color-coded by type:
 - Purple: Miles decisions
-- Orange: Adversarial feedback (Dark Horn summaries)
+- Orange: Adversarial feedback (External Validator summaries)
 - Cyan: Task completions (validator summaries)
 - Green: Human input
 - Red: Succession events
@@ -287,10 +347,11 @@ Backend pushes events to the frontend via SSE (Server-Sent Events). The frontend
 Python scheduler (asyncio-based) that manages:
 - Miles's decision loop (continuous)
 - Shadow's observation loop (continuous)
+- Hunter schedules (configurable intervals per source)
 - Adversary schedules (configurable intervals)
 - Executor lifecycle (spawn/monitor/cleanup)
-- Validator invocations (triggered when executors complete)
-- Dark Horn summarization (triggered when adversaries complete)
+- Validator invocations (triggered when executors or hunters complete)
+- External Validator summarization (triggered when adversaries complete)
 
 ## LLM Provider Layer
 
@@ -320,8 +381,10 @@ fantastic-harness/
 │   │   │   ├── shadow.py         # Shadow observation loop
 │   │   │   ├── validator.py      # Validator logic
 │   │   │   ├── executor.py       # Base executor
+│   │   │   ├── hunter.py         # Hunter intelligence gatherer
+│   │   │   ├── auditor.py        # Auditor — reports directly to Miles
 │   │   │   ├── adversary.py      # Adversary base (Rimu, Maurissa)
-│   │   │   └── darkhorn.py       # Dark Horn summarizer
+│   │   │   └── external_validator.py       # External Validator summarizer
 │   │   ├── llm/                  # LLM provider abstraction
 │   │   │   ├── base.py           # Provider interface
 │   │   │   ├── anthropic.py      # Claude provider
@@ -351,7 +414,7 @@ fantastic-harness/
 ## Design Invariants
 
 1. **Miles never executes** — only decides and delegates
-2. **Nothing unsummarized reaches Miles** — except human input
+2. **Nothing unsummarized reaches Miles** — except human input and auditor reports
 3. **Goals never auto-complete** — only humans close goals
 4. **Always two decision-makers** — one active, one shadow
 5. **Adversaries spawn fresh** — no memory between evaluations
