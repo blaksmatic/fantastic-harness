@@ -1,0 +1,7 @@
+.prompt-area { border-top: 1px solid #1e1e2e; padding: 12px; display: flex; gap: 8px; }
+.prompt-input { flex: 1; background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 8px; padding: 10px; color: #e2e8f0; font-size: 13px; outline: none; }
+.prompt-input:focus { border-color: #6366f1; }
+.prompt-input::placeholder { color: #666; }
+.prompt-send { background: #6366f1; border: none; border-radius: 8px; padding: 10px 20px; color: white; font-weight: 600; font-size: 13px; cursor: pointer; }
+.prompt-send:hover { background: #5558e6; }
+.prompt-send:disabled { opacity: 0.5; cursor: not-allowed; }

@@ -1,0 +1,16 @@
+.goal-panel { width: 200px; padding: 12px; overflow-y: auto; }
+.goal-card { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+.goal-card--active { border-color: #22c55e44; }
+.goal-card--completed { border-color: #64748b44; opacity: 0.6; }
+.goal-header { display: flex; justify-content: space-between; align-items: center; }
+.goal-name { font-weight: 600; font-size: 11px; }
+.goal-status { font-size: 9px; padding: 2px 6px; border-radius: 10px; }
+.goal-status--active { background: #22c55e; color: #000; }
+.goal-status--completed { background: #64748b; color: #fff; }
+.goal-status--paused { background: #f59e0b; color: #000; }
+.goal-desc { color: #888; font-size: 10px; margin-top: 4px; }
+.goal-empty { color: #666; font-size: 12px; padding: 10px 0; }
+.succession-entry { color: #888; font-size: 11px; margin-bottom: 4px; }
+.succession-retired { color: #64748b; }
+.succession-arrow { color: #444; margin: 0 4px; }
+.succession-promoted { color: #22c55e; }

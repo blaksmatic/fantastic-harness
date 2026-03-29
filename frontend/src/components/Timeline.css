@@ -1,0 +1,9 @@
+.timeline { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #1e1e2e; }
+.timeline .panel-title { padding: 12px; border-bottom: 1px solid #1e1e2e; font-size: 10px; text-transform: uppercase; color: #6366f1; letter-spacing: 1px; }
+.timeline-events { flex: 1; overflow-y: auto; padding: 12px; }
+.timeline-event { display: flex; gap: 10px; margin-bottom: 16px; }
+.event-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.event-meta { color: #888; font-size: 10px; }
+.event-type { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 4px; margin-top: 2px; }
+.event-content { margin-top: 4px; color: #ccc; font-size: 13px; line-height: 1.4; }
+.timeline-empty { color: #666; text-align: center; padding: 40px; font-size: 14px; }
