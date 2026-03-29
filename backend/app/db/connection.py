@@ -9,6 +9,7 @@ _db: aiosqlite.Connection | None = None
 async def init_db() -> None:
     global _db
     _db = await aiosqlite.connect(app.config.settings.db_path)
+    _db.row_factory = aiosqlite.Row
     await _db.executescript(SCHEMA)
     await _db.commit()
 
