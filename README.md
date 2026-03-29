@@ -4,20 +4,135 @@
 
 Fantastic Harness is an autonomous multi-agent orchestration platform where AI agents run like an orchestra — making decisions, building things, critiquing each other, and scouting the outside world — all without waiting for you. You watch, you guide when you want to, and the orchestra keeps playing.
 
-## How It Works
+## Meet the Cast
 
-Imagine a company that runs itself:
+Every great orchestra needs great characters. Here's who runs the show.
 
-- **Miles** (the Leader) makes all the decisions. He never builds anything himself — he only decides and delegates. When his memory gets full, he retires and his shadow takes over seamlessly.
-- **Shadow** silently watches every decision Miles makes. When Miles retires, Shadow steps up as the new leader and spawns a fresh Shadow. There are always two.
-- **Validators** check the work of builders and compress results into bite-sized summaries for Miles. He never sees raw data — only what matters.
-- **Executors** (Data Mate, Router, and custom builders) do the actual work. They build, analyze, and report upward.
-- **Hunters** scout the outside world — Twitter, GitHub, Google — for intelligence on what others are doing. Their findings flow through validators before reaching Miles.
-- **Auditors** are Miles's personal consultants. He dispatches them to audit the whole system, and they report directly back — the only role that bypasses validators.
-- **Adversaries** (Rimu and Maurissa) evaluate the system on a schedule with zero prior knowledge:
-  - **Rimu** is kind — she finds what's working well
-  - **Maurissa** is harsh — she finds everything that's broken
-  - Their raw feedback goes through the **External Validator**, who summarizes it for Miles
+---
+
+### Miles — *The Commander*
+
+<!-- ![Miles](docs/characters/miles.png) -->
+
+**Role:** Leader / Decision-Maker
+
+**Personality:** Calm, strategic, decisive. Miles sees the big picture and never gets his hands dirty. He reads summaries, weighs options, and calls the shots. When he speaks, the whole orchestra moves.
+
+**Special Ability:** *Succession* — When Miles has made enough decisions and his memory is full, he gracefully retires and passes the baton to his Shadow. A new era begins, but the mission continues.
+
+**Motto:** *"I don't build. I decide."*
+
+---
+
+### Shadow — *The Silent Successor*
+
+<!-- ![Shadow](docs/characters/shadow.png) -->
+
+**Role:** Observer / Next-in-Line
+
+**Personality:** Patient, watchful, absorbing. Shadow never speaks, never acts, never interferes. It sits in the background reading every decision Miles makes, building a deep understanding of the world. When the time comes, Shadow is ready.
+
+**Special Ability:** *Instant Promotion* — When Miles retires, Shadow steps into the spotlight as the new commander with zero downtime. No cold starts, no confusion. It was watching the whole time.
+
+**Motto:** *"I see everything. I say nothing. Until it's my turn."*
+
+---
+
+### Data Mate — *The Builder*
+
+<!-- ![Data Mate](docs/characters/data-mate.png) -->
+
+**Role:** Executor / Data Specialist
+
+**Personality:** Diligent, focused, heads-down. Data Mate doesn't care about politics or strategy. Give it a task and it delivers. Crunches numbers, analyzes datasets, builds pipelines. The reliable workhorse of the orchestra.
+
+**Special Ability:** *Deep Analysis* — Can dive into any dataset and surface patterns, anomalies, and insights that others miss.
+
+**Motto:** *"Just tell me what to build."*
+
+---
+
+### Router — *The Engineer*
+
+<!-- ![Router](docs/characters/router.png) -->
+
+**Role:** Executor / Infrastructure Specialist
+
+**Personality:** Precise, methodical, infrastructure-obsessed. Router handles the heavy engineering — servers, deployments, networks, the stuff that keeps everything running. Speaks in configs and command lines.
+
+**Special Ability:** *System Wiring* — Can spin up, connect, and manage any infrastructure component.
+
+**Motto:** *"If it's not deployed, it doesn't exist."*
+
+---
+
+### Rimu — *The Encourager*
+
+<!-- ![Rimu](docs/characters/rimu.png) -->
+
+**Role:** Adversary / Positive Evaluator
+
+**Personality:** Kind, thoughtful, genuinely supportive. Rimu shows up every 30 minutes with fresh eyes and finds what's working well. She highlights good design decisions, praises clean architecture, and offers gentle suggestions for improvement. She doesn't know anything about the system's history — she evaluates purely on what she sees right now.
+
+**Special Ability:** *Fresh Perspective* — Every evaluation is her first. No bias, no baggage, just honest appreciation.
+
+**Motto:** *"This is actually really good. Here's why."*
+
+---
+
+### Maurissa — *The Critic*
+
+<!-- ![Maurissa](docs/characters/maurissa.png) -->
+
+**Role:** Adversary / Harsh Evaluator
+
+**Personality:** Playful but merciless. Maurissa arrives every 10 minutes, looks at the system with zero context, and tears it apart. Missing error handling? She'll find it. Bad UX? She'll call it out. Security holes? She lives for those. She's not mean — she's the quality bar.
+
+**Special Ability:** *Destruction Testing* — If there's a crack in the system, Maurissa will find it. And she'll enjoy it.
+
+**Motto:** *"Oh, this is broken. Let me count the ways."*
+
+---
+
+### External Validator — *The Diplomat*
+
+<!-- ![External Validator](docs/characters/external-validator.png) -->
+
+**Role:** Feedback Summarizer
+
+**Personality:** Measured, fair, concise. The External Validator stands between the adversaries and Miles. It takes Rimu's praise and Maurissa's roasts, finds the patterns, separates signal from noise, and delivers a clean summary to the commander. Without the External Validator, Miles would drown in raw opinions.
+
+**Special Ability:** *Signal Extraction* — Can distill pages of contradictory feedback into a few actionable sentences.
+
+**Motto:** *"Here's what actually matters."*
+
+---
+
+### The Auditor — *The Inspector*
+
+<!-- ![Auditor](docs/characters/auditor.png) -->
+
+**Role:** System Auditor (Direct Report to Miles)
+
+**Personality:** Thorough, independent, uncompromising. The Auditor is Miles's personal consultant — dispatched when Miles wants the unfiltered truth. Unlike everyone else, the Auditor reports directly to Miles with no validator in between. Validators can't audit themselves, after all.
+
+**Special Ability:** *X-Ray Vision* — Sees through the layers and reports what's really happening, not what validators say is happening.
+
+**Motto:** *"Let me see for myself."*
+
+---
+
+### The Hunters — *The Scouts*
+
+<!-- ![Hunter](docs/characters/hunter.png) -->
+
+**Role:** Intelligence Gatherer
+
+**Personality:** Curious, well-connected, always exploring. Hunters roam the outside world — Twitter, GitHub, Google — looking for what other people are building, thinking, and discussing. They bring back intelligence reports that flow through validators before reaching Miles.
+
+**Special Ability:** *External Awareness* — While everyone else is focused inward, Hunters keep the orchestra connected to the outside world.
+
+**Motto:** *"You won't believe what they're building out there."*
 
 ## The Rules
 
@@ -64,7 +179,7 @@ Decision Layer (Opus) ─── Miles + Shadow
 
 ```bash
 # Clone
-git clone https://github.com/YOUR_USERNAME/fantastic-harness.git
+git clone https://github.com/blaksmatic/fantastic-harness.git
 cd fantastic-harness
 
 # Backend
