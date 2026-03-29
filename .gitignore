@@ -1,4 +1,5 @@
 .superpowers/
+docs/superpowers/
 harness.db
 __pycache__/
 node_modules/
