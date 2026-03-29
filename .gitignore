@@ -3,3 +3,7 @@ harness.db
 __pycache__/
 node_modules/
 .env
+.venv/
+*.pyc
+*.pyo
+.pytest_cache/
