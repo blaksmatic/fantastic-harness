@@ -62,3 +62,21 @@ async def test_list_succession(client):
     resp = await client.get("/succession")
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)
+
+
+@pytest.mark.asyncio
+async def test_full_flow_goal_to_event(client):
+    resp = await client.post("/goals", json={"id": "integration_1", "description": "Integration test goal"})
+    assert resp.status_code == 201
+    resp = await client.post("/input", json={"content": "Focus on integration testing"})
+    assert resp.status_code == 201
+    resp = await client.get("/events")
+    assert resp.status_code == 200
+    events = resp.json()
+    human_events = [e for e in events if e["type"] == "human_input"]
+    assert len(human_events) >= 1
+    resp = await client.get("/goals")
+    assert any(g["id"] == "integration_1" for g in resp.json())
+    resp = await client.patch("/goals/integration_1", json={"status": "completed"})
+    assert resp.status_code == 200
+    assert resp.json()["closed_by"] == "human"
